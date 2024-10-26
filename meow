@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeowConverter</title>
+    <style>
+        body {
+            font-family: system-ui;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label, textarea, button, select {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        textarea {
+            position: relative;
+            resize: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            left: -10px;
+        }
+        button, select {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover, select:hover {
+            background-color: #0056b3;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .col {
+            flex: 1;
+        }
+        .rightmargin {
+            margin-right: 20px;
+        }
+        h5 {
+            color: gray;
+            margin-bottom: -5px;
+            text-align: center;
+        }
+        a:link, a:visited, a:hover {
+            color: gray;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .row {
+                flex-direction: column;
+            }
+            .rightmargin {
+                margin-right: 0;
+            }
+        }
+    </style>
+    <script>
+        let currentLanguage = 'cn';
+
+        function encryptCN(plainText) {
+            let encoder = new TextEncoder();
+            let utf8Bytes = encoder.encode(plainText);
+            let result = '';
+            for (let byte of utf8Bytes) {
+                if (byte === 32) {
+                    result += '嗷';
+                } else {
+                    let binary = byte.toString(2).padStart(8, '0');
+                    result += binary.replace(/0/g, '喵').replace(/1/g, '呜');
+                }
+            }
+            return result;
+        }
+
+        function decryptCN(cipherText) {
+            let binaryString = '';
+            for (let i = 0; i < cipherText.length; i += 8) {
+                if (cipherText.slice(i, i + 1) === '嗷') {
+                    binaryString += '00100000';
+                    i -= 7;
+                } else {
+                    let binary = cipherText.slice(i, i + 8).replace(/喵/g, '0').replace(/呜/g, '1');
+                    binaryString += binary;
+                }
+            }
+            let byteArray = [];
+            for (let i = 0; i < binaryString.length; i += 8) {
+                byteArray.push(parseInt(binaryString.slice(i, i + 8), 2));
+            }
+            let decoder = new TextDecoder();
+            return decoder.decode(new Uint8Array(byteArray));
+        }
+
+        function encryptEN(plainText) {
+            let encoder = new TextEncoder();
+            let utf8Bytes = encoder.encode(plainText);
+            let result = '';
+            for (let byte of utf8Bytes) {
+                if (byte === 32) {
+                    result += 'a';
+                } else {
+                    let binary = byte.toString(2).padStart(8, '0');
+                    result += binary.replace(/0/g, 'me').replace(/1/g, 'ow');
+                }
+            }
+            return result;
+        }
+
+        function decryptEN(cipherText) {
+            let binaryString = '';
+            for (let i = 0; i < cipherText.length; i += 8) {
+                if (cipherText.slice(i, i + 1) === 'a') {
+                    binaryString += '00100000';
+                    i -= 7;
+                } else {
+                    let binary = cipherText.slice(i, i + 8).replace(/me/g, '0').replace(/ow/g, '1');
+                    binaryString += binary;
+                }
+            }
+            let byteArray = [];
+            for (let i = 0; i < binaryString.length; i += 8) {
+                byteArray.push(parseInt(binaryString.slice(i, i + 8), 2));
+            }
+            let decoder = new TextDecoder();
+            return decoder.decode(new Uint8Array(byteArray));
+        }
+
+        function onEncryptClick() {
+            const plainText = document.getElementById('plainText').value;
+            let cipherText = '';
+            if (currentLanguage === 'cn') {
+                cipherText = encryptCN(plainText);
+            } else {
+                cipherText = encryptEN(plainText);
+            }
+            document.getElementById('cipherText').value = cipherText;
+        }
+
+        function onDecryptClick() {
+            const cipherText = document.getElementById('cipherText').value;
+            let plainText = '';
+            if (currentLanguage === 'cn') {
+                plainText = decryptCN(cipherText);
+            } else {
+                plainText = decryptEN(cipherText);
+            }
+            document.getElementById('plainText').value = plainText;
+        }
+
+        function onLanguageChange() {
+            currentLanguage = document.getElementById('languageSelect').value;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>MeowConverter</h1>
+
+        <label>Select Encryption/Decryption Mode:</label>
+        <select id="languageSelect" onchange="onLanguageChange()">
+            <option value="cn">Chinese Me-ow (喵呜)</option>
+            <option value="en">Me-ow</option>
+        </select>
+
+        <div class="row">
+            <div class="col rightmargin">
+                <label for="plainText">Plain Text:</label>
+                <textarea id="plainText" rows="4" placeholder="Enter plain text..."></textarea>
+                <button onclick="onEncryptClick()">Encrypt to Cipher Text</button>
+            </div>
+            <div class="col">
+                <label for="cipherText">Cipher Text:</label>
+                <textarea id="cipherText" rows="4" placeholder="Enter cipher text..."></textarea>
+                <button onclick="onDecryptClick()">Decrypt to Plain Text</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col"><h5>Author: Kimjuen<br />Github: <a href="https://github.com/KimjuenLau">KimjuenLau</a></h5></div>
+        </div>
+    </div>
+</body>
+</html>
